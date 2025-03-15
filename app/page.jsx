@@ -28,7 +28,7 @@ export default function Home() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/coupons/claim",
+        "https://coupon-backend-1-4nih.onrender.com/api/coupons/claim",
         { ip: userIP } // Send IP in request body
       );
       setMessage(response.data.message);

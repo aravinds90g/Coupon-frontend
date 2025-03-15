@@ -1,19 +1,35 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 export default function Home() {
   const [message, setMessage] = useState("");
   const [coupon, setCoupon] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isError, setIsError] = useState(false); // New state to track if the message is an error
+  const [isError, setIsError] = useState(false);
+  const [userIP, setUserIP] = useState(""); // Store user's IP
+
+  // Fetch user's IP address when the component loads
+  useEffect(() => {
+    const fetchIP = async () => {
+      try {
+        const response = await axios.get("https://api64.ipify.org?format=json");
+        setUserIP(response.data.ip);
+      } catch (error) {
+        console.error("Error fetching IP:", error);
+      }
+    };
+    fetchIP();
+  }, []);
 
   const claimCoupon = async () => {
     setLoading(true);
-    setIsError(false); // Reset error state
+    setIsError(false);
+
     try {
       const response = await axios.post(
-        "https://coupon-backend-klos.onrender.com/api/coupons/claim"
+        "http://localhost:5000/api/coupons/claim",
+        { ip: userIP } // Send IP in request body
       );
       setMessage(response.data.message);
       setCoupon(response.data.couponCode || null);
@@ -22,8 +38,9 @@ export default function Home() {
         error.response?.data?.message ||
           "Error claiming coupon. Please try again."
       );
-      setIsError(true); // Set error state to true
+      setIsError(true);
     }
+
     setLoading(false);
   };
 
